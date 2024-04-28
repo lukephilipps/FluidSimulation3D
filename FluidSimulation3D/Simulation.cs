@@ -66,10 +66,11 @@ namespace FluidSimulation3D
 
         float rotation;
 
-        //Skybox current_skybox;
-        Matrix view, projection;
+        Skybox current_skybox;
+        Matrix world, view, projection;
         Vector3 camPos;
         Effect planeShader;
+        Effect glass;
         VertexPositionTexture[] planeSlices = {
             new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f)),
             new VertexPositionTexture(new Vector3(0, 1, 4) - new Vector3(2f), new Vector2(0f, 0f)),
@@ -101,11 +102,13 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
-            //string[] skybox_textures2 = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
-            //current_skybox = new Skybox(skybox_textures2, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
+            string[] skybox_textures2 = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
+            current_skybox = new Skybox(skybox_textures2, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
 
             planeShader = Content.Load<Effect>("Skybox/Simple3D");
             planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/FloorTiles"));
+
+            glass = Content.Load<Effect>("Skybox/PPXReflections");
 
             raytracer = Content.Load<Effect>("Raytracer");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
@@ -212,28 +215,19 @@ namespace FluidSimulation3D
             ComputeProjection();
 
             GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.BlendState = BlendState.Additive;
 
-            //GraphicsDevice.BlendState = BlendState.Opaque;
-            //GraphicsDevice.DepthStencilState = new DepthStencilState();
+            camPos = new Vector3((float)Math.Sin(rotation) * 2f, 1f, (float)Math.Cos(rotation) * 2f);
+            world = Matrix.Identity;
+            view = Matrix.CreateLookAt(camPos, Vector3.Zero, new Vector3(0, 1, 0));
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
 
-            // Draw skybox
-            RasterizerState originalRasterizerState = GraphicsDevice.RasterizerState;
-            RasterizerState rasterizerState = new RasterizerState();
-            //rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            //current_skybox.Draw(view, projection, camPos);
+            DrawPlane();
+            DrawFluidRayMarched();
 
-            planeShader.Parameters["World"].SetValue(Matrix.Identity);
-            planeShader.Parameters["View"].SetValue(view);
-            planeShader.Parameters["Projection"].SetValue(projection);
-            foreach (var pass in planeShader.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, planeSlices, 0, planeSlices.Length / 3);
-            }
-            GraphicsDevice.RasterizerState = originalRasterizerState;
-
-            Draw3DTextureCube();
+            GraphicsDevice.RasterizerState = new RasterizerState();
+            DrawGlass();
             DrawText();
 
             base.Draw(gameTime);
@@ -469,17 +463,8 @@ namespace FluidSimulation3D
             buffer[WRITE] = tmp;
         }
 
-        private void Draw3DTextureCube()
+        private void DrawFluidRayMarched()
         {
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            GraphicsDevice.BlendState = BlendState.Additive;
-
-            camPos = new Vector3((float)Math.Sin(rotation) * 2f, 1f, (float)Math.Cos(rotation) * 2f);
-
-            Matrix world = Matrix.Identity;
-            view = Matrix.CreateLookAt(camPos, Vector3.Zero, new Vector3(0, 1, 0));
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
-
             raytracer.Parameters["World"].SetValue(world);
             raytracer.Parameters["View"].SetValue(view);
             raytracer.Parameters["Projection"].SetValue(projection);
@@ -489,6 +474,37 @@ namespace FluidSimulation3D
             raytracer.Parameters["CamPos"].SetValue(camPos);
 
             foreach (var pass in raytracer.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                GraphicsDevice.SetVertexBuffer(cubeSlices);
+                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, TextureSize * 2);
+            }
+        }
+
+        private void DrawPlane()
+        {
+            planeShader.Parameters["World"].SetValue(Matrix.Identity);
+            planeShader.Parameters["View"].SetValue(view);
+            planeShader.Parameters["Projection"].SetValue(projection);
+
+            foreach (var pass in planeShader.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, planeSlices, 0, planeSlices.Length / 3);
+            }
+        }
+
+        private void DrawGlass()
+        {
+            glass.Parameters["World"].SetValue(world);
+            glass.Parameters["View"].SetValue(view);
+            glass.Parameters["Projection"].SetValue(projection);
+            Matrix worldInverseTransform = Matrix.Transpose(Matrix.Invert(world));
+            glass.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransform);
+            glass.Parameters["EnvironmentMap"].SetValue(current_skybox.skybox_texture);
+
+            foreach (var pass in glass.CurrentTechnique.Passes)
             {
                 pass.Apply();
 
@@ -509,58 +525,58 @@ namespace FluidSimulation3D
 
         private VertexBuffer CreateCubeSlices()
         {
-            var vertices = new VertexPositionTexture[36];
+            var vertices = new VertexPositionNormalTexture[36];
             Vector3 center = new Vector3(0.5f);
 
             // Forward face
-            vertices[0] = new VertexPositionTexture(new Vector3(0, 0, 0) - center, new Vector2(0, 1));
-            vertices[1] = new VertexPositionTexture(new Vector3(0, 1, 0) - center, new Vector2(0, 0));
-            vertices[2] = new VertexPositionTexture(new Vector3(1, 1, 0) - center, new Vector2(1, 0));
-            vertices[3] = new VertexPositionTexture(new Vector3(0, 0, 0) - center, new Vector2(0, 1));
-            vertices[4] = new VertexPositionTexture(new Vector3(1, 1, 0) - center, new Vector2(1, 0));
-            vertices[5] = new VertexPositionTexture(new Vector3(1, 0, 0) - center, new Vector2(1, 1));
+            vertices[0] = new VertexPositionNormalTexture(new Vector3(1, 1, 0) - center, new Vector3(0, 0, 1), new Vector2(1, 0));
+            vertices[1] = new VertexPositionNormalTexture(new Vector3(0, 1, 0) - center, new Vector3(0, 0, 1), new Vector2(0, 0));
+            vertices[2] = new VertexPositionNormalTexture(new Vector3(0, 0, 0) - center, new Vector3(0, 0, 1), new Vector2(0, 1));
+            vertices[3] = new VertexPositionNormalTexture(new Vector3(1, 0, 0) - center, new Vector3(0, 0, 1), new Vector2(1, 1));
+            vertices[4] = new VertexPositionNormalTexture(new Vector3(1, 1, 0) - center, new Vector3(0, 0, 1), new Vector2(1, 0));
+            vertices[5] = new VertexPositionNormalTexture(new Vector3(0, 0, 0) - center, new Vector3(0, 0, 1), new Vector2(0, 1));
 
             // Backward face
-            vertices[6] = new VertexPositionTexture(new Vector3(0, 0, 1) - center, new Vector2(0, 1));
-            vertices[7] = new VertexPositionTexture(new Vector3(0, 1, 1) - center, new Vector2(0, 0));
-            vertices[8] = new VertexPositionTexture(new Vector3(1, 1, 1) - center, new Vector2(1, 0));
-            vertices[9] = new VertexPositionTexture(new Vector3(0, 0, 1) - center, new Vector2(0, 1));
-            vertices[10] = new VertexPositionTexture(new Vector3(1, 1, 1) - center, new Vector2(1, 0));
-            vertices[11] = new VertexPositionTexture(new Vector3(1, 0, 1) - center, new Vector2(1, 1));
+            vertices[6] = new VertexPositionNormalTexture(new Vector3(0, 0, 1) - center, new Vector3(0, 0, -1), new Vector2(0, 1));
+            vertices[7] = new VertexPositionNormalTexture(new Vector3(0, 1, 1) - center, new Vector3(0, 0, -1), new Vector2(0, 0));
+            vertices[8] = new VertexPositionNormalTexture(new Vector3(1, 1, 1) - center, new Vector3(0, 0, -1), new Vector2(1, 0));
+            vertices[9] = new VertexPositionNormalTexture(new Vector3(0, 0, 1) - center, new Vector3(0, 0, -1), new Vector2(0, 1));
+            vertices[10] = new VertexPositionNormalTexture(new Vector3(1, 1, 1) - center, new Vector3(0, 0, -1), new Vector2(1, 0));
+            vertices[11] = new VertexPositionNormalTexture(new Vector3(1, 0, 1) - center, new Vector3(0, 0, -1), new Vector2(1, 1));
 
             // Top face
-            vertices[12] = new VertexPositionTexture(new Vector3(0, 1, 0) - center, new Vector2(0, 1));
-            vertices[13] = new VertexPositionTexture(new Vector3(0, 1, 1) - center, new Vector2(0, 0));
-            vertices[14] = new VertexPositionTexture(new Vector3(1, 1, 1) - center, new Vector2(1, 0));
-            vertices[15] = new VertexPositionTexture(new Vector3(0, 1, 0) - center, new Vector2(0, 1));
-            vertices[16] = new VertexPositionTexture(new Vector3(1, 1, 1) - center, new Vector2(1, 0));
-            vertices[17] = new VertexPositionTexture(new Vector3(1, 1, 0) - center, new Vector2(1, 1));
+            vertices[12] = new VertexPositionNormalTexture(new Vector3(1, 1, 1) - center, new Vector3(0, 1, 0), new Vector2(1, 0));
+            vertices[13] = new VertexPositionNormalTexture(new Vector3(0, 1, 1) - center, new Vector3(0, 1, 0), new Vector2(0, 0));
+            vertices[14] = new VertexPositionNormalTexture(new Vector3(0, 1, 0) - center, new Vector3(0, 1, 0), new Vector2(0, 1));
+            vertices[15] = new VertexPositionNormalTexture(new Vector3(1, 1, 0) - center, new Vector3(0, 1, 0), new Vector2(1, 1));
+            vertices[16] = new VertexPositionNormalTexture(new Vector3(1, 1, 1) - center, new Vector3(0, 1, 0), new Vector2(1, 0));
+            vertices[17] = new VertexPositionNormalTexture(new Vector3(0, 1, 0) - center, new Vector3(0, 1, 0), new Vector2(0, 1));
 
             // Bottom face
-            vertices[18] = new VertexPositionTexture(new Vector3(0, 0, 0) - center, new Vector2(0, 1));
-            vertices[19] = new VertexPositionTexture(new Vector3(0, 0, 1) - center, new Vector2(0, 0));
-            vertices[20] = new VertexPositionTexture(new Vector3(1, 0, 1) - center, new Vector2(1, 0));
-            vertices[21] = new VertexPositionTexture(new Vector3(0, 0, 0) - center, new Vector2(0, 1));
-            vertices[22] = new VertexPositionTexture(new Vector3(1, 0, 1) - center, new Vector2(1, 0));
-            vertices[23] = new VertexPositionTexture(new Vector3(1, 0, 0) - center, new Vector2(1, 1));
+            vertices[18] = new VertexPositionNormalTexture(new Vector3(0, 0, 0) - center, new Vector3(0, -1, 0), new Vector2(0, 1));
+            vertices[19] = new VertexPositionNormalTexture(new Vector3(0, 0, 1) - center, new Vector3(0, -1, 0), new Vector2(0, 0));
+            vertices[20] = new VertexPositionNormalTexture(new Vector3(1, 0, 1) - center, new Vector3(0, -1, 0), new Vector2(1, 0));
+            vertices[21] = new VertexPositionNormalTexture(new Vector3(0, 0, 0) - center, new Vector3(0, -1, 0), new Vector2(0, 1));
+            vertices[22] = new VertexPositionNormalTexture(new Vector3(1, 0, 1) - center, new Vector3(0, -1, 0), new Vector2(1, 0));
+            vertices[23] = new VertexPositionNormalTexture(new Vector3(1, 0, 0) - center, new Vector3(0, -1, 0), new Vector2(1, 1));
 
             // Left Face
-            vertices[24] = new VertexPositionTexture(new Vector3(0, 0, 1) - center, new Vector2(0, 1));
-            vertices[25] = new VertexPositionTexture(new Vector3(0, 1, 1) - center, new Vector2(0, 0));
-            vertices[26] = new VertexPositionTexture(new Vector3(0, 1, 0) - center, new Vector2(1, 0));
-            vertices[27] = new VertexPositionTexture(new Vector3(0, 0, 1) - center, new Vector2(0, 1));
-            vertices[28] = new VertexPositionTexture(new Vector3(0, 1, 0) - center, new Vector2(1, 0));
-            vertices[29] = new VertexPositionTexture(new Vector3(0, 0, 0) - center, new Vector2(1, 1));
+            vertices[24] = new VertexPositionNormalTexture(new Vector3(0, 1, 0) - center, new Vector3(-1, 0, 0), new Vector2(1, 0));
+            vertices[25] = new VertexPositionNormalTexture(new Vector3(0, 1, 1) - center, new Vector3(-1, 0, 0), new Vector2(0, 0));
+            vertices[26] = new VertexPositionNormalTexture(new Vector3(0, 0, 1) - center, new Vector3(-1, 0, 0), new Vector2(0, 1));
+            vertices[27] = new VertexPositionNormalTexture(new Vector3(0, 0, 0) - center, new Vector3(-1, 0, 0), new Vector2(1, 1));
+            vertices[28] = new VertexPositionNormalTexture(new Vector3(0, 1, 0) - center, new Vector3(-1, 0, 0), new Vector2(1, 0));
+            vertices[29] = new VertexPositionNormalTexture(new Vector3(0, 0, 1) - center, new Vector3(-1, 0, 0), new Vector2(0, 1));
 
             // Right Face
-            vertices[30] = new VertexPositionTexture(new Vector3(1, 0, 1) - center, new Vector2(0, 1));
-            vertices[31] = new VertexPositionTexture(new Vector3(1, 1, 1) - center, new Vector2(0, 0));
-            vertices[32] = new VertexPositionTexture(new Vector3(1, 1, 0) - center, new Vector2(1, 0));
-            vertices[33] = new VertexPositionTexture(new Vector3(1, 0, 1) - center, new Vector2(0, 1));
-            vertices[34] = new VertexPositionTexture(new Vector3(1, 1, 0) - center, new Vector2(1, 0));
-            vertices[35] = new VertexPositionTexture(new Vector3(1, 0, 0) - center, new Vector2(1, 1));
+            vertices[30] = new VertexPositionNormalTexture(new Vector3(1, 0, 1) - center, new Vector3(1, 0, 0), new Vector2(0, 1));
+            vertices[31] = new VertexPositionNormalTexture(new Vector3(1, 1, 1) - center, new Vector3(1, 0, 0), new Vector2(0, 0));
+            vertices[32] = new VertexPositionNormalTexture(new Vector3(1, 1, 0) - center, new Vector3(1, 0, 0), new Vector2(1, 0));
+            vertices[33] = new VertexPositionNormalTexture(new Vector3(1, 0, 1) - center, new Vector3(1, 0, 0), new Vector2(0, 1));
+            vertices[34] = new VertexPositionNormalTexture(new Vector3(1, 1, 0) - center, new Vector3(1, 0, 0), new Vector2(1, 0));
+            vertices[35] = new VertexPositionNormalTexture(new Vector3(1, 0, 0) - center, new Vector3(1, 0, 0), new Vector2(1, 1));
 
-            var vb = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
+            var vb = new VertexBuffer(GraphicsDevice, typeof(VertexPositionNormalTexture), vertices.Length, BufferUsage.WriteOnly);
             vb.SetData(vertices);
 
             return vb;

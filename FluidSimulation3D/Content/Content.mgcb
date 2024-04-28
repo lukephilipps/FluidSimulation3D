@@ -98,6 +98,12 @@
 /processorParam:DebugMode=Auto
 /build:Skybox/Simple3D.fx
 
+#begin Skybox/PPXReflections.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Skybox/PPXReflections.fx
+
 #begin Skybox/cube.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
