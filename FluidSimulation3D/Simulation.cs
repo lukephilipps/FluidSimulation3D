@@ -69,8 +69,15 @@ namespace FluidSimulation3D
         //Skybox current_skybox;
         Matrix view, projection;
         Vector3 camPos;
-        Model plane;
         Effect planeShader;
+        VertexPositionTexture[] planeSlices = {
+            new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f)),
+            new VertexPositionTexture(new Vector3(0, 1, 4) - new Vector3(2f), new Vector2(0f, 0f)),
+            new VertexPositionTexture(new Vector3(4, 1, 4) - new Vector3(2f), new Vector2(1f, 0f)),
+            new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f)),
+            new VertexPositionTexture(new Vector3(4, 1, 4) - new Vector3(2f), new Vector2(1f, 0f)),
+            new VertexPositionTexture(new Vector3(4, 1, 0) - new Vector3(2f), new Vector2(1f, 1f))
+        };
 
         public Simulation()
         {
@@ -97,9 +104,8 @@ namespace FluidSimulation3D
             //string[] skybox_textures2 = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
             //current_skybox = new Skybox(skybox_textures2, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
 
-            plane = Content.Load<Model>("Skybox/Plane");
             planeShader = Content.Load<Effect>("Skybox/Simple3D");
-            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/DarkBorders"));
+            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/FloorTiles"));
 
             raytracer = Content.Load<Effect>("Raytracer");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
@@ -211,17 +217,21 @@ namespace FluidSimulation3D
             //GraphicsDevice.DepthStencilState = new DepthStencilState();
 
             // Draw skybox
-            //RasterizerState originalRasterizerState = GraphicsDevice.RasterizerState;
-            //RasterizerState rasterizerState = new RasterizerState();
+            RasterizerState originalRasterizerState = GraphicsDevice.RasterizerState;
+            RasterizerState rasterizerState = new RasterizerState();
             //rasterizerState.CullMode = CullMode.None;
-            //GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.RasterizerState = rasterizerState;
             //current_skybox.Draw(view, projection, camPos);
-            //GraphicsDevice.RasterizerState = originalRasterizerState;
 
             planeShader.Parameters["World"].SetValue(Matrix.Identity);
             planeShader.Parameters["View"].SetValue(view);
             planeShader.Parameters["Projection"].SetValue(projection);
-            
+            foreach (var pass in planeShader.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, planeSlices, 0, planeSlices.Length / 3);
+            }
+            GraphicsDevice.RasterizerState = originalRasterizerState;
 
             Draw3DTextureCube();
             DrawText();
@@ -468,7 +478,7 @@ namespace FluidSimulation3D
 
             Matrix world = Matrix.Identity;
             view = Matrix.CreateLookAt(camPos, Vector3.Zero, new Vector3(0, 1, 0));
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(40), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
 
             raytracer.Parameters["World"].SetValue(world);
             raytracer.Parameters["View"].SetValue(view);

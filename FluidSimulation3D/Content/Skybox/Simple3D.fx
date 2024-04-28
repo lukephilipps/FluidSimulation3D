@@ -22,7 +22,6 @@ VertexPositionTexture VS(VertexPositionTexture input)
     output.TextureCoordinate = input.TextureCoordinate;
     
     return output;
-
 }
 
 float4 PS(VertexPositionTexture input) : COLOR
