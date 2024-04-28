@@ -102,8 +102,9 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
-            string[] skybox_textures2 = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
-            current_skybox = new Skybox(skybox_textures2, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
+            //string[] skybox_textures = { "Skybox/hills_negx", "Skybox/hills_posx", "Skybox/hills_negy", "Skybox/hills_posy", "Skybox/hills_negz", "Skybox/hills_posz" };
+            string[] skybox_textures = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
+            current_skybox = new Skybox(skybox_textures, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
 
             planeShader = Content.Load<Effect>("Skybox/Simple3D");
             planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/FloorTiles"));
@@ -226,7 +227,7 @@ namespace FluidSimulation3D
             DrawPlane();
             DrawFluidRayMarched();
 
-            GraphicsDevice.RasterizerState = new RasterizerState();
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             DrawGlass();
             DrawText();
 

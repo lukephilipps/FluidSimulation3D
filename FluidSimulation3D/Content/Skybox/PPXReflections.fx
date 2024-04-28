@@ -52,7 +52,7 @@ float4 ReflectionPS(VertexOutput input) : COLOR
     float4 reflectedColor = texCUBE(SkyBoxSampler, R);
     reflectedColor.a = .2;
     
-    return reflectedColor;
+    return lerp(reflectedColor, float4(0.847, 0.894, .913, .2), .9);
 }
 
 technique Reflection
