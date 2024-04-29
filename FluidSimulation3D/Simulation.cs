@@ -211,10 +211,12 @@ namespace FluidSimulation3D
             ComputeProjection();
 
             GraphicsDevice.Clear(Color.Black);
+            
+            DrawPlane();
+
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.Additive;
 
-            DrawPlane();
             DrawFluidRaymarched();
 
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -572,12 +574,12 @@ namespace FluidSimulation3D
         {
             var vertices = new VertexPositionTexture[6];
 
-            vertices[0] = new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f));
+            vertices[0] = new VertexPositionTexture(new Vector3(4, 1, 4) - new Vector3(2f), new Vector2(1f, 0f));
             vertices[1] = new VertexPositionTexture(new Vector3(0, 1, 4) - new Vector3(2f), new Vector2(0f, 0f));
-            vertices[2] = new VertexPositionTexture(new Vector3(4, 1, 4) - new Vector3(2f), new Vector2(1f, 0f));
-            vertices[3] = new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f));
+            vertices[2] = new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f));
+            vertices[3] = new VertexPositionTexture(new Vector3(4, 1, 0) - new Vector3(2f), new Vector2(1f, 1f));
             vertices[4] = new VertexPositionTexture(new Vector3(4, 1, 4) - new Vector3(2f), new Vector2(1f, 0f));
-            vertices[5] = new VertexPositionTexture(new Vector3(4, 1, 0) - new Vector3(2f), new Vector2(1f, 1f));
+            vertices[5] = new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f));
 
             var vb = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
             vb.SetData(vertices);
