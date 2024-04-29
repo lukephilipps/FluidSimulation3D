@@ -8,11 +8,14 @@ namespace FluidSimulation3D
 {
     public class Simulation : Game
     {
+        // needs to be the same as the GroupSizeXYX defined in the compute shader
+        const int ComputeGroupSizeXYZ = 8;
+
+        // Display info
         const int ResolutionX = 1280;
         const int ResolutionY = 720;
 
-        const int ComputeGroupSizeXYZ = 8; // needs to be the same as the GroupSizeXYX defined in the compute shader
-
+        // Buffer constants
         const int READ = 0;
         const int WRITE = 1;
         const int PHI_N_HAT = 0;
@@ -23,7 +26,7 @@ namespace FluidSimulation3D
         const int Height = 128;
         const int Depth = 128;
 
-        float timeStep = 0.1f;
+        const float timeStep = 0.1f;
 
         // Used for Jacobi compute
         public int m_iterations = 10;
@@ -99,10 +102,10 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
-            planeShader = Content.Load<Effect>("GroundRendering/Simple3D");
-            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("GroundRendering/FloorTiles"));
+            planeShader = Content.Load<Effect>("Rendering/Simple3D");
+            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
 
-            raytracer = Content.Load<Effect>("Raymarcher");
+            raytracer = Content.Load<Effect>("Rendering/Raymarcher");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
             applyImpulse = Content.Load<Effect>("ComputeShaders/ApplyImpulse");
             applyBuoyancy = Content.Load<Effect>("ComputeShaders/ApplyBuoyancy");
@@ -112,7 +115,7 @@ namespace FluidSimulation3D
             computeProjection = Content.Load<Effect>("ComputeShaders/ComputeProjection");
             computeConfinement = Content.Load<Effect>("ComputeShaders/ComputeConfinement");
             computeVorticity = Content.Load<Effect>("ComputeShaders/ComputeVorticity");
-            textFont = Content.Load<SpriteFont>("TextFont");
+            textFont = Content.Load<SpriteFont>("Text/TextFont");
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
