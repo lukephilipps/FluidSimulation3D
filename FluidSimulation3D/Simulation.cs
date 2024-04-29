@@ -71,6 +71,7 @@ namespace FluidSimulation3D
         Matrix world, view, projection;
         Vector3 camPos;
         Effect planeShader;
+        Effect glass;
         VertexPositionTexture[] planeSlices = {
             new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f)),
             new VertexPositionTexture(new Vector3(0, 1, 4) - new Vector3(2f), new Vector2(0f, 0f)),
@@ -102,8 +103,12 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
+            world = Matrix.Identity;
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
+
             planeShader = Content.Load<Effect>("Rendering/Simple3D");
             planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
+            glass = Content.Load<Effect>("Rendering/Glass");
 
             raytracer = Content.Load<Effect>("Rendering/Raymarcher");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
@@ -177,7 +182,10 @@ namespace FluidSimulation3D
             if (keyboardState.IsKeyDown(Keys.E))
                 m_inputPos += new Vector4(0f, 0.01f, 0f, 0f);
 
-            m_inputPos = Vector4.Clamp(m_inputPos, new Vector4(0.03f), new Vector4(0.97f));
+            m_inputPos = Vector4.Clamp(m_inputPos, new Vector4(0.1f), new Vector4(0.9f));
+
+            camPos = new Vector3((float)Math.Sin(rotation) * 2f, 1f, (float)Math.Cos(rotation) * 2f);
+            view = Matrix.CreateLookAt(camPos, Vector3.Zero, new Vector3(0, 1, 0));
 
             base.Update(gameTime);
         }
@@ -213,16 +221,12 @@ namespace FluidSimulation3D
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.Additive;
 
-            camPos = new Vector3((float)Math.Sin(rotation) * 2f, 1f, (float)Math.Cos(rotation) * 2f);
-            world = Matrix.Identity;
-            view = Matrix.CreateLookAt(camPos, Vector3.Zero, new Vector3(0, 1, 0));
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
-
             DrawPlane();
             DrawFluidRayMarched();
 
-            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            //DrawGlass();
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            DrawGlass();
             DrawText();
 
             base.Draw(gameTime);
@@ -487,6 +491,21 @@ namespace FluidSimulation3D
             {
                 pass.Apply();
                 GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, planeSlices, 0, planeSlices.Length / 3);
+            }
+        }
+
+        private void DrawGlass()
+        {
+            glass.Parameters["World"].SetValue(Matrix.Identity);
+            glass.Parameters["View"].SetValue(view);
+            glass.Parameters["Projection"].SetValue(projection);
+
+            foreach (var pass in glass.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                GraphicsDevice.SetVertexBuffer(cubeSlices);
+                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
             }
         }
 

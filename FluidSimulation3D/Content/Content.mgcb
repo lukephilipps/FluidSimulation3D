@@ -19,6 +19,12 @@
 /processorParam:DebugMode=Auto
 /build:Rendering/Raymarcher.fx
 
+#begin Rendering/Glass.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Rendering/Glass.fx
+
 #begin Text/TextFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
