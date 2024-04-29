@@ -1,6 +1,5 @@
-﻿float4x4 World;
-float4x4 View;
-float4x4 Projection;
+﻿float4x4 _View;
+float4x4 _Projection;
 
 struct VertexIn
 {
@@ -16,7 +15,7 @@ v2f vert(VertexIn input)
 {
     v2f output;
     
-    output.Position = mul(mul(float4(input.Position, 1), View), Projection);
+    output.Position = mul(mul(float4(input.Position, 1), _View), _Projection);
     output.TexCoord = input.Position.xyz + 0.5;
 	
     return output;

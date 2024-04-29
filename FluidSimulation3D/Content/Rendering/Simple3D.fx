@@ -4,21 +4,21 @@
     float2 TextureCoordinate : TEXCOORD;
 };
 
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
+float4x4 _World;
+float4x4 _View;
+float4x4 _Projection;
 
-texture MyTexture;
-sampler mySampler = sampler_state
+texture _Texture;
+sampler _TexSampler = sampler_state
 {
-    Texture = <MyTexture>;
+    Texture = <_Texture>;
 };
 
 VertexPositionTexture VS(VertexPositionTexture input)
 {
     VertexPositionTexture output;
     
-    output.Position = mul(mul(mul(input.Position, World), View), Projection);
+    output.Position = mul(mul(mul(input.Position, _World), _View), _Projection);
     output.TextureCoordinate = input.TextureCoordinate;
     
     return output;
@@ -26,7 +26,7 @@ VertexPositionTexture VS(VertexPositionTexture input)
 
 float4 PS(VertexPositionTexture input) : COLOR
 {
-    return tex2D(mySampler, input.TextureCoordinate);
+    return tex2D(_TexSampler, input.TextureCoordinate);
 }
 
 technique MyTechnique

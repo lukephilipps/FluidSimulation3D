@@ -2,14 +2,14 @@
 			
 float4 _SmokeColor = float4(.8, 1, 1, 1);
 float _SmokeAbsorption = 50;
-uniform float3 _Translate, _Scale, _Size;
+uniform float3 _Size;
 			
 StructuredBuffer<float> _Density;
 
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
-float3 CamPos;
+float4x4 _World;
+float4x4 _View;
+float4x4 _Projection;
+float3 _CamPos;
 
 struct VertexIn
 {
@@ -21,13 +21,13 @@ struct v2f
     float3 worldPos : TEXCOORD0;
 };
 
-v2f vert(VertexIn input)
+v2f VS(VertexIn input)
 {
     v2f OUT;
     
-    float4 worldPos = mul(float4(input.Position, 1), World);
-    float4 viewPos = mul(worldPos, View);
-    OUT.pos = mul(viewPos, Projection);
+    float4 worldPos = mul(float4(input.Position, 1), _World);
+    float4 viewPos = mul(worldPos, _View);
+    OUT.pos = mul(viewPos, _Projection);
     OUT.worldPos = worldPos.xyz;
     
     return OUT;
@@ -93,18 +93,17 @@ float SampleBilinear(StructuredBuffer<float> buffer, float3 uv, float3 size)
 				
 }
 			
-float4 frag(v2f IN) : COLOR
+float4 PS(v2f IN) : COLOR
 {
-    //float3 pos = _WorldSpaceCameraPos;
-    float3 pos = CamPos;
+    float3 pos = _CamPos;
 	
     Ray r;
     r.origin = pos;
     r.dir = normalize(IN.worldPos - pos);
 	
     AABB aabb;
-    aabb.Min = float3(-0.5, -0.5, -0.5) * _Scale + _Translate;
-    aabb.Max = float3(0.5, 0.5, 0.5) * _Scale + _Translate;
+    aabb.Min = float3(-0.5, -0.5, -0.5);
+    aabb.Max = float3(0.5, 0.5, 0.5);
 
 	//figure out where ray from eye hit front of cube
     float tnear, tfar;
@@ -118,10 +117,8 @@ float4 frag(v2f IN) : COLOR
     float3 rayStop = r.origin + r.dir * tfar;
     
     //convert to texture space
-    rayStart -= _Translate;
-    rayStop -= _Translate;
-    rayStart = (rayStart + 0.5 * _Scale) / _Scale;
-    rayStop = (rayStop + 0.5 * _Scale) / _Scale;
+    rayStart = rayStart + 0.5;
+    rayStop = rayStop + 0.5;
    	
     float3 start = rayStart;
     float dist = distance(rayStop, rayStart);
@@ -147,7 +144,7 @@ technique Tech0
 {
     pass Pass1
     {
-        VertexShader = compile vs_4_0 vert();
-        PixelShader = compile ps_4_0 frag();
+        VertexShader = compile vs_4_0 VS();
+        PixelShader = compile ps_4_0 PS();
     }
 }

@@ -111,7 +111,7 @@ namespace FluidSimulation3D
             _smokeRaymarcher = Content.Load<Effect>("Rendering/Raymarcher");
             _glassShader = Content.Load<Effect>("Rendering/Glass");
             _planeShader = Content.Load<Effect>("Rendering/Simple3D");
-            _planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
+            _planeShader.Parameters["_Texture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
             _textFont = Content.Load<SpriteFont>("Text/TextFont");
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -454,13 +454,12 @@ namespace FluidSimulation3D
 
         private void DrawFluidRaymarched()
         {
-            _smokeRaymarcher.Parameters["World"].SetValue(_world);
-            _smokeRaymarcher.Parameters["View"].SetValue(_view);
-            _smokeRaymarcher.Parameters["Projection"].SetValue(_projection);
+            _smokeRaymarcher.Parameters["_World"].SetValue(_world);
+            _smokeRaymarcher.Parameters["_View"].SetValue(_view);
+            _smokeRaymarcher.Parameters["_Projection"].SetValue(_projection);
             _smokeRaymarcher.Parameters["_Density"].SetValue(_density[Read]);
-            _smokeRaymarcher.Parameters["_Scale"].SetValue(new Vector3(1, 1, 1));
             _smokeRaymarcher.Parameters["_Size"].SetValue(_size);
-            _smokeRaymarcher.Parameters["CamPos"].SetValue(_camPos);
+            _smokeRaymarcher.Parameters["_CamPos"].SetValue(_camPos);
 
             foreach (var pass in _smokeRaymarcher.CurrentTechnique.Passes)
             {
@@ -473,9 +472,9 @@ namespace FluidSimulation3D
 
         private void DrawPlane()
         {
-            _planeShader.Parameters["World"].SetValue(Matrix.Identity);
-            _planeShader.Parameters["View"].SetValue(_view);
-            _planeShader.Parameters["Projection"].SetValue(_projection);
+            _planeShader.Parameters["_World"].SetValue(Matrix.Identity);
+            _planeShader.Parameters["_View"].SetValue(_view);
+            _planeShader.Parameters["_Projection"].SetValue(_projection);
 
             foreach (var pass in _planeShader.CurrentTechnique.Passes)
             {
@@ -488,9 +487,8 @@ namespace FluidSimulation3D
 
         private void DrawGlass()
         {
-            _glassShader.Parameters["World"].SetValue(Matrix.Identity);
-            _glassShader.Parameters["View"].SetValue(_view);
-            _glassShader.Parameters["Projection"].SetValue(_projection);
+            _glassShader.Parameters["_View"].SetValue(_view);
+            _glassShader.Parameters["_Projection"].SetValue(_projection);
 
             foreach (var pass in _glassShader.CurrentTechnique.Passes)
             {
