@@ -13,11 +13,11 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Raytracer.fx
+#begin Raymarcher.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Raytracer.fx
+/build:Raymarcher.fx
 
 #begin TextFont.spritefont
 /importer:FontDescriptionImporter
@@ -80,13 +80,13 @@
 /processorParam:DebugMode=Auto
 /build:ComputeShaders/ComputeBorders.fx
 
-#begin Skybox/Simple3D.fx
+#begin GroundRendering/Simple3D.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Skybox/Simple3D.fx
+/build:GroundRendering/Simple3D.fx
 
-#begin Skybox/FloorTiles.png
+#begin GroundRendering/FloorTiles.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -96,4 +96,4 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Skybox/FloorTiles.png
+/build:GroundRendering/FloorTiles.png

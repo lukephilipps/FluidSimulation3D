@@ -22,7 +22,6 @@ namespace FluidSimulation3D
         const int Width = 128;
         const int Height = 128;
         const int Depth = 128;
-        const int TextureSize = 128;
 
         float timeStep = 0.1f;
 
@@ -33,7 +32,7 @@ namespace FluidSimulation3D
         public float m_densityAmount = 1.0f;
         public float m_densityDissipation = 0.999f;
         public float m_densityBuoyancy = 1.0f;
-        public float m_densityWeight = 0.0125f;
+        public float m_densityWeight = 0.00125f;
         public float m_temperatureAmount = 10.0f;
         public float m_temperatureDissipation = 0.995f;
         public float m_velocityDissipation = 0.995f;
@@ -100,10 +99,10 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
-            planeShader = Content.Load<Effect>("Skybox/Simple3D");
-            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/FloorTiles"));
+            planeShader = Content.Load<Effect>("GroundRendering/Simple3D");
+            planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("GroundRendering/FloorTiles"));
 
-            raytracer = Content.Load<Effect>("Raytracer");
+            raytracer = Content.Load<Effect>("Raymarcher");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
             applyImpulse = Content.Load<Effect>("ComputeShaders/ApplyImpulse");
             applyBuoyancy = Content.Load<Effect>("ComputeShaders/ApplyBuoyancy");
@@ -471,7 +470,7 @@ namespace FluidSimulation3D
                 pass.Apply();
 
                 GraphicsDevice.SetVertexBuffer(cubeSlices);
-                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, TextureSize * 2);
+                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
             }
         }
 
@@ -487,24 +486,6 @@ namespace FluidSimulation3D
                 GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, planeSlices, 0, planeSlices.Length / 3);
             }
         }
-
-        //private void DrawGlass()
-        //{
-        //    glass.Parameters["World"].SetValue(world);
-        //    glass.Parameters["View"].SetValue(view);
-        //    glass.Parameters["Projection"].SetValue(projection);
-        //    Matrix worldInverseTransform = Matrix.Transpose(Matrix.Invert(world));
-        //    glass.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransform);
-        //    glass.Parameters["EnvironmentMap"].SetValue(current_skybox.skybox_texture);
-
-        //    foreach (var pass in glass.CurrentTechnique.Passes)
-        //    {
-        //        pass.Apply();
-
-        //        GraphicsDevice.SetVertexBuffer(cubeSlices);
-        //        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, TextureSize * 2);
-        //    }
-        //}
 
         private void DrawText()
         {

@@ -19,18 +19,19 @@ struct v2f
 {
     float4 pos : SV_POSITION;
     float3 worldPos : TEXCOORD0;
+    float3 TexCoord : TEXCOORD1;
 };
 
 v2f vert(VertexIn input)
 {
     v2f OUT;
-    //OUT.pos = UnityObjectToClipPos(v.vertex);
+    
     float4 worldPos = mul(float4(input.Position, 1), World);
     float4 viewPos = mul(worldPos, View);
     OUT.pos = mul(viewPos, Projection);
-    
-    //OUT.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
     OUT.worldPos = worldPos.xyz;
+    OUT.TexCoord = input.Position.xyz + 0.5;
+    
     return OUT;
 }
 			
@@ -140,8 +141,11 @@ float4 frag(v2f IN) : COLOR
         if (alpha <= 0.01)
             break;
     }
+    
+    float3 pixelPos = IN.TexCoord * 2 - 1;
+    float cornerBright = pow(dot(pixelPos, pixelPos), 5) * 0.002;
 	
-    return _SmokeColor * (1 - alpha);
+    return _SmokeColor * (1 - alpha) + cornerBright;
 }
 
 technique Tech0
