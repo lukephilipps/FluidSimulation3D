@@ -99,11 +99,6 @@ namespace FluidSimulation3D
             _world = Matrix.Identity;
             _projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(50), (float)ResolutionX / (float)ResolutionY, 0.1f, 1000f);
 
-            _planeShader = Content.Load<Effect>("Rendering/Simple3D");
-            _planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
-            _glassShader = Content.Load<Effect>("Rendering/Glass");
-
-            _smokeRaymarcher = Content.Load<Effect>("Rendering/Raymarcher");
             _applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
             _applyImpulse = Content.Load<Effect>("ComputeShaders/ApplyImpulse");
             _applyBuoyancy = Content.Load<Effect>("ComputeShaders/ApplyBuoyancy");
@@ -113,6 +108,10 @@ namespace FluidSimulation3D
             _computeProjection = Content.Load<Effect>("ComputeShaders/ComputeProjection");
             _computeConfinement = Content.Load<Effect>("ComputeShaders/ComputeConfinement");
             _computeVorticity = Content.Load<Effect>("ComputeShaders/ComputeVorticity");
+            _smokeRaymarcher = Content.Load<Effect>("Rendering/Raymarcher");
+            _glassShader = Content.Load<Effect>("Rendering/Glass");
+            _planeShader = Content.Load<Effect>("Rendering/Simple3D");
+            _planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Rendering/FloorTiles"));
             _textFont = Content.Load<SpriteFont>("Text/TextFont");
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -155,14 +154,15 @@ namespace FluidSimulation3D
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float dt_update = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             KeyboardState keyboardState = Keyboard.GetState();
 
             if (keyboardState.IsKeyDown(Keys.Right))
-                _rotation += dt;
+                _rotation += dt_update;
             if (keyboardState.IsKeyDown(Keys.Left))
-                _rotation -= dt;
+                _rotation -= dt_update;
+
             if (keyboardState.IsKeyDown(Keys.A))
                 inputPos -= new Vector4(0.01f, 0f, 0f, 0f);
             if (keyboardState.IsKeyDown(Keys.D))
@@ -215,7 +215,7 @@ namespace FluidSimulation3D
             GraphicsDevice.BlendState = BlendState.Additive;
 
             DrawPlane();
-            DrawFluidRayMarched();
+            DrawFluidRaymarched();
 
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
@@ -285,7 +285,6 @@ namespace FluidSimulation3D
             _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
             _applyAdvection.Parameters["_Dissipate"].SetValue(dissipation);
             _applyAdvection.Parameters["_Forward"].SetValue(1.0f);
-
             _applyAdvection.Parameters["_Read1f"].SetValue(buffer[Read]);
             _applyAdvection.Parameters["_Write1f"].SetValue(buffer[Write]);
             _applyAdvection.Parameters["_Phi_n_1_hat"].SetValue(_phi[Phi_N_1_Hat]);
@@ -381,7 +380,6 @@ namespace FluidSimulation3D
             _computeConfinement.Parameters["_Size"].SetValue(_size);
             _computeConfinement.Parameters["_DeltaTime"].SetValue(dt);
             _computeConfinement.Parameters["_Epsilon"].SetValue(vorticityStrength);
-
             _computeConfinement.Parameters["_Write"].SetValue(_velocity[Write]);
             _computeConfinement.Parameters["_Read"].SetValue(_velocity[Read]);
             _computeConfinement.Parameters["_Vorticity"].SetValue(_temp3f);
@@ -434,7 +432,6 @@ namespace FluidSimulation3D
             _computeProjection.CurrentTechnique = _computeProjection.Techniques[0];
             _computeProjection.Parameters["_Size"].SetValue(_size);
             _computeProjection.Parameters["_Obstacles"].SetValue(_obstacles);
-
             _computeProjection.Parameters["_Pressure"].SetValue(_pressure[Read]);
             _computeProjection.Parameters["_Velocity"].SetValue(_velocity[Read]);
             _computeProjection.Parameters["_Write"].SetValue(_velocity[Write]);
@@ -455,7 +452,7 @@ namespace FluidSimulation3D
             buffer[Write] = tmp;
         }
 
-        private void DrawFluidRayMarched()
+        private void DrawFluidRaymarched()
         {
             _smokeRaymarcher.Parameters["World"].SetValue(_world);
             _smokeRaymarcher.Parameters["View"].SetValue(_view);
@@ -506,7 +503,7 @@ namespace FluidSimulation3D
 
         private void DrawText()
         {
-            string text = "WASD to move smoke\n";
+            string text = "WASDQE to move smoke\n";
             text += "Arrows to rotate";
 
             _spriteBatch.Begin();
