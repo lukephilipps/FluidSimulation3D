@@ -66,11 +66,9 @@ namespace FluidSimulation3D
 
         float rotation;
 
-        Skybox current_skybox;
         Matrix world, view, projection;
         Vector3 camPos;
         Effect planeShader;
-        Effect glass;
         VertexPositionTexture[] planeSlices = {
             new VertexPositionTexture(new Vector3(0, 1, 0) - new Vector3(2f), new Vector2(0f, 1f)),
             new VertexPositionTexture(new Vector3(0, 1, 4) - new Vector3(2f), new Vector2(0f, 0f)),
@@ -102,14 +100,8 @@ namespace FluidSimulation3D
 
         protected override void LoadContent()
         {
-            //string[] skybox_textures = { "Skybox/hills_negx", "Skybox/hills_posx", "Skybox/hills_negy", "Skybox/hills_posy", "Skybox/hills_negz", "Skybox/hills_posz" };
-            string[] skybox_textures = { "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx", "Skybox/skybox_negx" };
-            current_skybox = new Skybox(skybox_textures, Content, graphics.GraphicsDevice, "Skybox/cube", "Skybox/Skybox");
-
             planeShader = Content.Load<Effect>("Skybox/Simple3D");
             planeShader.Parameters["MyTexture"].SetValue(Content.Load<Texture2D>("Skybox/FloorTiles"));
-
-            glass = Content.Load<Effect>("Skybox/PPXReflections");
 
             raytracer = Content.Load<Effect>("Raytracer");
             applyAdvection = Content.Load<Effect>("ComputeShaders/ApplyAdvection");
@@ -227,8 +219,8 @@ namespace FluidSimulation3D
             DrawPlane();
             DrawFluidRayMarched();
 
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            DrawGlass();
+            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            //DrawGlass();
             DrawText();
 
             base.Draw(gameTime);
@@ -496,23 +488,23 @@ namespace FluidSimulation3D
             }
         }
 
-        private void DrawGlass()
-        {
-            glass.Parameters["World"].SetValue(world);
-            glass.Parameters["View"].SetValue(view);
-            glass.Parameters["Projection"].SetValue(projection);
-            Matrix worldInverseTransform = Matrix.Transpose(Matrix.Invert(world));
-            glass.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransform);
-            glass.Parameters["EnvironmentMap"].SetValue(current_skybox.skybox_texture);
+        //private void DrawGlass()
+        //{
+        //    glass.Parameters["World"].SetValue(world);
+        //    glass.Parameters["View"].SetValue(view);
+        //    glass.Parameters["Projection"].SetValue(projection);
+        //    Matrix worldInverseTransform = Matrix.Transpose(Matrix.Invert(world));
+        //    glass.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransform);
+        //    glass.Parameters["EnvironmentMap"].SetValue(current_skybox.skybox_texture);
 
-            foreach (var pass in glass.CurrentTechnique.Passes)
-            {
-                pass.Apply();
+        //    foreach (var pass in glass.CurrentTechnique.Passes)
+        //    {
+        //        pass.Apply();
 
-                GraphicsDevice.SetVertexBuffer(cubeSlices);
-                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, TextureSize * 2);
-            }
-        }
+        //        GraphicsDevice.SetVertexBuffer(cubeSlices);
+        //        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, TextureSize * 2);
+        //    }
+        //}
 
         private void DrawText()
         {

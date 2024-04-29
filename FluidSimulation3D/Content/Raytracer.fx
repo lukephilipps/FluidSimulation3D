@@ -1,6 +1,6 @@
 ﻿#define NUM_SAMPLES 64
 			
-float4 _SmokeColor = float4(1, 1, 1, 1);
+float4 _SmokeColor = float4(.8, 1, 1, 1);
 float _SmokeAbsorption = 50;
 uniform float3 _Translate, _Scale, _Size;
 			
