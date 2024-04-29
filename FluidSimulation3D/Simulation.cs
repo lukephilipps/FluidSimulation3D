@@ -42,7 +42,7 @@ namespace FluidSimulation3D
         public float temperatureDissipation = 0.995f;
         public float velocityDissipation = 0.995f;
         public float inputRadius = 0.04f;
-        public Vector4 inputPos = new Vector4(0.5f, 0.1f, 0.5f, 0.0f);
+        public Vector3 inputPos = new Vector3(0.5f, 0.1f, 0.5f);
 
         // Compute shaders
         Effect _applyAdvection;
@@ -164,19 +164,19 @@ namespace FluidSimulation3D
                 _rotation -= dt_update;
 
             if (keyboardState.IsKeyDown(Keys.A))
-                inputPos -= new Vector4(0.01f, 0f, 0f, 0f);
+                inputPos -= new Vector3(0.01f, 0f, 0f);
             if (keyboardState.IsKeyDown(Keys.D))
-                inputPos += new Vector4(0.01f, 0f, 0f, 0f);
+                inputPos += new Vector3(0.01f, 0f, 0f);
             if (keyboardState.IsKeyDown(Keys.W))
-                inputPos -= new Vector4(0f, 0f, 0.01f, 0f);
+                inputPos -= new Vector3(0f, 0f, 0.01f);
             if (keyboardState.IsKeyDown(Keys.S))
-                inputPos += new Vector4(0f, 0f, 0.01f, 0f);
+                inputPos += new Vector3(0f, 0f, 0.01f);
             if (keyboardState.IsKeyDown(Keys.Q))
-                inputPos -= new Vector4(0f, 0.01f, 0f, 0f);
+                inputPos -= new Vector3(0f, 0.01f, 0f);
             if (keyboardState.IsKeyDown(Keys.E))
-                inputPos += new Vector4(0f, 0.01f, 0f, 0f);
+                inputPos += new Vector3(0f, 0.01f, 0f);
 
-            inputPos = Vector4.Clamp(inputPos, new Vector4(0.1f), new Vector4(0.9f));
+            inputPos = Vector3.Clamp(inputPos, new Vector3(0.1f), new Vector3(0.9f));
 
             _camPos = new Vector3((float)Math.Sin(_rotation) * 2f, 1f, (float)Math.Cos(_rotation) * 2f);
             _view = Matrix.CreateLookAt(_camPos, Vector3.Zero, new Vector3(0, 1, 0));

@@ -4,7 +4,8 @@
 #define GroupSizeXYZ 8
 
 float _Radius, _Amount, _DeltaTime;
-float4 _Pos, _Size;
+float3 _Pos;
+float4 _Size;
 
 RWStructuredBuffer<float> _Write;
 StructuredBuffer<float> _Read, _Reaction;
