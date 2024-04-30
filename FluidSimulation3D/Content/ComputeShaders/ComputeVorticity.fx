@@ -9,9 +9,8 @@ RWStructuredBuffer<float3> _Write;
 StructuredBuffer<float3> _Velocity;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
-void CS(int3 id : SV_DispatchThreadID)
+void Vorticity(int3 id : SV_DispatchThreadID)
 {
-
     int idxL = max(0, id.x - 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
     int idxR = min(_Size.x - 1, id.x + 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
     
@@ -41,6 +40,6 @@ technique Tech0
 {
     pass Pass0
     {
-        ComputeShader = compile cs_5_0 CS();
+        ComputeShader = compile cs_5_0 Vorticity();
     }
 }

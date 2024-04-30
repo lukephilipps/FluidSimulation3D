@@ -10,7 +10,7 @@ StructuredBuffer<float> _Pressure, _Obstacles;
 StructuredBuffer<float3> _Velocity;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
-void CS(int3 id : SV_DispatchThreadID)
+void Project(int3 id : SV_DispatchThreadID)
 {
     int idx = id.x + id.y * _Size.x + id.z * _Size.x * _Size.y;
 
@@ -84,6 +84,6 @@ technique Tech0
 {
     pass Pass0
     {
-        ComputeShader = compile cs_5_0 CS();
+        ComputeShader = compile cs_5_0 Project();
     }
 }

@@ -51,7 +51,6 @@ float SampleBilinear(StructuredBuffer<float> buffer, float3 uv, float3 size)
     float z1 = x2 * (1.0f - fz) + x3 * fz;
 	
     return z0 * (1.0f - fy) + z1 * fy;
-
 }
 
 float3 SampleBilinear(StructuredBuffer<float3> buffer, float3 uv, float3 size)
@@ -81,7 +80,6 @@ float3 SampleBilinear(StructuredBuffer<float3> buffer, float3 uv, float3 size)
     float3 z1 = x2 * (1.0f - fz) + x3 * fz;
 	
     return z0 * (1.0f - fy) + z1 * fy;
-
 }
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]

@@ -13,7 +13,7 @@ StructuredBuffer<float> _Read, _Reaction;
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
 void GaussImpulse(uint3 id : SV_DispatchThreadID)
 {
-    float3 pos = id / (_Size.xyz - 1.0f) - _Pos.xyz;
+    float3 pos = id / (_Size.xyz - 1.0f) - _Pos;
     float mag = pos.x * pos.x + pos.y * pos.y + pos.z * pos.z;
     float rad2 = _Radius * _Radius;
 	

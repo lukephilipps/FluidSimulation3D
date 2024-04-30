@@ -8,9 +8,8 @@ float4 _Size;
 RWStructuredBuffer<float> _Write;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
-void CS(int3 id : SV_DispatchThreadID)
+void Borders(int3 id : SV_DispatchThreadID)
 {
-
     int idx = id.x + id.y * _Size.x + id.z * _Size.x * _Size.y;
     
     float obstacle = 0;
@@ -38,6 +37,6 @@ technique Tech0
 {
     pass Pass0
     {
-        ComputeShader = compile cs_5_0 CS();
+        ComputeShader = compile cs_5_0 Borders();
     }
 }

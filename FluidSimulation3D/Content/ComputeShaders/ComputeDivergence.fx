@@ -10,9 +10,8 @@ StructuredBuffer<float3> _Velocity;
 StructuredBuffer<float> _Obstacles;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
-void CS(int3 id : SV_DispatchThreadID)
+void Divergence(int3 id : SV_DispatchThreadID)
 {
-
     int idxL = max(0, id.x - 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
     int idxR = min(_Size.x - 1, id.x + 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
     
@@ -33,6 +32,7 @@ void CS(int3 id : SV_DispatchThreadID)
     
     float3 obstacleVelocity = float3(0, 0, 0);
     
+    // Possibly remove checks and directly set these values to borders as they are 0 or 1
     if (_Obstacles[idxL] > 0.1)
         L = obstacleVelocity;
     if (_Obstacles[idxR] > 0.1)
@@ -59,6 +59,6 @@ technique Tech0
 {
     pass Pass0
     {
-        ComputeShader = compile cs_5_0 CS();
+        ComputeShader = compile cs_5_0 Divergence();
     }
 }

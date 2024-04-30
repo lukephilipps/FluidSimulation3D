@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -328,7 +327,7 @@ namespace FluidSimulation3D
         {
             _applyBuoyancy.CurrentTechnique = _applyBuoyancy.Techniques[0];
             _applyBuoyancy.Parameters["_Size"].SetValue(_size);
-            _applyBuoyancy.Parameters["_Up"].SetValue(new Vector4(0f, 1f, 0f, 0f));
+            _applyBuoyancy.Parameters["_Up"].SetValue(new Vector3(0f, 1f, 0f));
             _applyBuoyancy.Parameters["_Buoyancy"].SetValue(densityBuoyancy);
             _applyBuoyancy.Parameters["_Weight"].SetValue(densityWeight);
             _applyBuoyancy.Parameters["_DeltaTime"].SetValue(dt);
