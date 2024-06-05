@@ -5,10 +5,13 @@
 
 float _Radius, _Amount, _DeltaTime;
 float3 _Pos;
-float4 _Size;
+float3 _Size;
 
-RWStructuredBuffer<float> _Write;
-StructuredBuffer<float> _Read, _Reaction;
+//RWStructuredBuffer<float> _Write;
+//StructuredBuffer<float> _Read, _Reaction;
+
+RWTexture3D<float> _Write;
+RWTexture3D<float> _Read;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
 void GaussImpulse(uint3 id : SV_DispatchThreadID)
@@ -19,9 +22,7 @@ void GaussImpulse(uint3 id : SV_DispatchThreadID)
 	
     float amount = exp(-mag / rad2) * _Amount * _DeltaTime;
 				
-    int idx = id.x + id.y * _Size.x + id.z * _Size.x * _Size.y;
-	
-    _Write[idx] = _Read[idx] + amount;
+    _Write[id] = _Read[id] + amount;
 }
 
 technique Tech0

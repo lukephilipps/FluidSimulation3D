@@ -5,13 +5,12 @@
 
 float4 _Size;
 
-RWStructuredBuffer<float> _Write;
+//RWStructuredBuffer<float> _Write;
+RWTexture3D<float> _Write;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
 void Borders(int3 id : SV_DispatchThreadID)
 {
-    int idx = id.x + id.y * _Size.x + id.z * _Size.x * _Size.y;
-    
     float obstacle = 0;
     
     if (id.x - 1 < 0)
@@ -29,7 +28,7 @@ void Borders(int3 id : SV_DispatchThreadID)
     if (id.z + 1 > (int) _Size.z - 1)
         obstacle = 1;
     
-    _Write[idx] = obstacle;
+    _Write[id] = obstacle;
 }
 
 

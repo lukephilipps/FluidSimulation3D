@@ -57,8 +57,11 @@ namespace FluidSimulation3D
         Vector3 _size;
 
         // Buffers
-        StructuredBuffer[] _density, _velocity, _pressure, _temperature, _phi;
-        StructuredBuffer _temp3f, _obstacles;
+        //StructuredBuffer[] _density, _velocity, _pressure, _temperature, _phi;
+        //StructuredBuffer _temp3f, _obstacles;
+
+        Texture3D[] _density, _velocity, _pressure, _temperature, _phi;
+        Texture3D _temp3f, _obstacles;
 
         // Rendering
         GraphicsDeviceManager _graphics;
@@ -117,31 +120,53 @@ namespace FluidSimulation3D
 
             _size = new Vector3(Width, Height, Depth);
 
-            int bufferSize = Width * Height * Depth;
+            //_density = new StructuredBuffer[2];
+            //_density[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_density[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _density = new StructuredBuffer[2];
-            _density[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
-            _density[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_temperature = new StructuredBuffer[2];
+            //_temperature[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_temperature[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _temperature = new StructuredBuffer[2];
-            _temperature[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
-            _temperature[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_phi = new StructuredBuffer[2];
+            //_phi[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_phi[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _phi = new StructuredBuffer[2];
-            _phi[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
-            _phi[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_velocity = new StructuredBuffer[2];
+            //_velocity[Read] = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_velocity[Write] = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _velocity = new StructuredBuffer[2];
-            _velocity[Read] = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
-            _velocity[Write] = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_pressure = new StructuredBuffer[2];
+            //_pressure[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_pressure[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _pressure = new StructuredBuffer[2];
-            _pressure[Read] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
-            _pressure[Write] = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_obstacles = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _obstacles = new StructuredBuffer(GraphicsDevice, typeof(float), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            //_temp3f = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
 
-            _temp3f = new StructuredBuffer(GraphicsDevice, typeof(Vector3), bufferSize, BufferUsage.None, ShaderAccess.ReadWrite);
+            _density = new Texture3D[2];
+            _density[Read] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+            _density[Write] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+
+            _temperature = new Texture3D[2];
+            _temperature[Read] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+            _temperature[Write] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+
+            _phi = new Texture3D[2];
+            _phi[Read] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+            _phi[Write] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+
+            _velocity = new Texture3D[2];
+            _velocity[Read] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Vector4, ShaderAccess.ReadWrite);
+            _velocity[Write] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Vector4, ShaderAccess.ReadWrite);
+
+            _pressure = new Texture3D[2];
+            _pressure[Read] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+            _pressure[Write] = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+
+            _obstacles = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Single, ShaderAccess.ReadWrite);
+
+            _temp3f = new Texture3D(GraphicsDevice, Width, Height, Depth, false, SurfaceFormat.Vector4, ShaderAccess.ReadWrite);
 
             ComputeObstacles();
 
@@ -189,13 +214,14 @@ namespace FluidSimulation3D
 
             ApplyAdvection(dt, temperatureDissipation, _temperature);
 
-            if (false)
-            {
-                ApplyAdvection(dt, 1.0f, _density[Read], _phi[Phi_N_1_Hat], 1.0f);
-                ApplyAdvection(dt, 1.0f, _density[Phi_N_1_Hat], _phi[Phi_N_Hat], -1.0f);
-                ApplyAdvectionMacCormack(dt, densityDissipation, _density);
-            }
-            else ApplyAdvection(dt, densityDissipation, _density);
+            //if (false)
+            //{
+            //    ApplyAdvection(dt, 1.0f, _density[Read], _phi[Phi_N_1_Hat], 1.0f);
+            //    ApplyAdvection(dt, 1.0f, _density[Phi_N_1_Hat], _phi[Phi_N_Hat], -1.0f);
+            //    ApplyAdvectionMacCormack(dt, densityDissipation, _density);
+            //}
+            //else ApplyAdvection(dt, densityDissipation, _density);
+            ApplyAdvection(dt, densityDissipation, _density);
 
             ApplyAdvectionVelocity(dt);
             ApplyBuoyancy(dt);
@@ -239,10 +265,9 @@ namespace FluidSimulation3D
             }
         }
 
-        void ApplyAdvection(float dt, float dissipation, StructuredBuffer[] buffer, float forward = 1.0f)
+        void ApplyAdvection(float dt, float dissipation, Texture3D[] buffer, float forward = 1.0f)
         {
             _applyAdvection.CurrentTechnique = _applyAdvection.Techniques[1];
-            _applyAdvection.Parameters["_Size"].SetValue(_size);
             _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
             _applyAdvection.Parameters["_Dissipate"].SetValue(dissipation);
             _applyAdvection.Parameters["_Forward"].SetValue(forward);
@@ -260,10 +285,9 @@ namespace FluidSimulation3D
             Swap(buffer);
         }
 
-        void ApplyAdvection(float dt, float dissipation, StructuredBuffer read, StructuredBuffer write, float forward = 0.1f)
+        void ApplyAdvection(float dt, float dissipation, Texture3D read, Texture3D write, float forward = 0.1f)
         {
             _applyAdvection.CurrentTechnique = _applyAdvection.Techniques[1];
-            _applyAdvection.Parameters["_Size"].SetValue(_size);
             _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
             _applyAdvection.Parameters["_Dissipate"].SetValue(dissipation);
             _applyAdvection.Parameters["_Forward"].SetValue(forward);
@@ -279,10 +303,9 @@ namespace FluidSimulation3D
             }
         }
 
-        void ApplyAdvectionMacCormack(float dt, float dissipation, StructuredBuffer[] buffer)
+        void ApplyAdvectionMacCormack(float dt, float dissipation, Texture3D[] buffer)
         {
             _applyAdvection.CurrentTechnique = _applyAdvection.Techniques[2];
-            _applyAdvection.Parameters["_Size"].SetValue(_size);
             _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
             _applyAdvection.Parameters["_Dissipate"].SetValue(dissipation);
             _applyAdvection.Parameters["_Forward"].SetValue(1.0f);
@@ -305,7 +328,6 @@ namespace FluidSimulation3D
         void ApplyAdvectionVelocity(float dt)
         {
             _applyAdvection.CurrentTechnique = _applyAdvection.Techniques[0];
-            _applyAdvection.Parameters["_Size"].SetValue(_size);
             _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
             _applyAdvection.Parameters["_Dissipate"].SetValue(velocityDissipation);
             _applyAdvection.Parameters["_Forward"].SetValue(1.0f);
@@ -326,8 +348,7 @@ namespace FluidSimulation3D
         void ApplyBuoyancy(float dt)
         {
             _applyBuoyancy.CurrentTechnique = _applyBuoyancy.Techniques[0];
-            _applyBuoyancy.Parameters["_Size"].SetValue(_size);
-            _applyBuoyancy.Parameters["_Up"].SetValue(new Vector3(0f, 1f, 0f));
+            _applyBuoyancy.Parameters["_Up"].SetValue(new Vector4(0f, 1f, 0f, 0f));
             _applyBuoyancy.Parameters["_Buoyancy"].SetValue(densityBuoyancy);
             _applyBuoyancy.Parameters["_Weight"].SetValue(densityWeight);
             _applyBuoyancy.Parameters["_DeltaTime"].SetValue(dt);
@@ -345,7 +366,7 @@ namespace FluidSimulation3D
             Swap(_velocity);
         }
 
-        void ApplyImpulse(float dt, float amount, StructuredBuffer[] buffer)
+        void ApplyImpulse(float dt, float amount, Texture3D[] buffer)
         {
             _applyImpulse.CurrentTechnique = _applyImpulse.Techniques[0];
             _applyImpulse.Parameters["_Size"].SetValue(_size);
@@ -446,9 +467,9 @@ namespace FluidSimulation3D
             Swap(_velocity);
         }
 
-        void Swap(StructuredBuffer[] buffer)
+        void Swap(Texture3D[] buffer)
         {
-            StructuredBuffer tmp = buffer[Read];
+            Texture3D tmp = buffer[Read];
             buffer[Read] = buffer[Write];
             buffer[Write] = tmp;
         }

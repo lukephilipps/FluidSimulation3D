@@ -4,14 +4,15 @@ float4 _SmokeColor = float4(.8, 1, 1, 1);
 float _SmokeAbsorption = 50;
 uniform float3 _Size;
 			
-StructuredBuffer<float> _Density;
+//StructuredBuffer<float> _Density;
+Texture3D<float> _Density;
 
 float4x4 _World;
 float4x4 _View;
 float4x4 _Projection;
 float3 _CamPos;
 
-struct p2f
+struct app_data
 {
     float3 Position : POSITION0;
 };
@@ -21,7 +22,7 @@ struct v2f
     float3 worldPos : TEXCOORD0;
 };
 
-v2f VS(p2f input)
+v2f VS(app_data input)
 {
     v2f OUT;
     
@@ -129,7 +130,7 @@ float4 PS(v2f IN) : COLOR
 
     for (int i = 0; i < NUM_SAMPLES; i++, start += ds)
     {
-        float D = SampleBilinear(_Density, start, _Size);
+        float D = _Density[start];
    				 	
         alpha *= 1.0 - saturate(D * stepSize * _SmokeAbsorption);
         			

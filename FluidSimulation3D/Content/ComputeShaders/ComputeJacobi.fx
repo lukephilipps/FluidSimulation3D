@@ -5,21 +5,26 @@
 
 float4 _Size;
 
-RWStructuredBuffer<float> _Write;
-StructuredBuffer<float> _Pressure, _Obstacles;
-StructuredBuffer<float3> _Divergence;
+//RWStructuredBuffer<float> _Write;
+//StructuredBuffer<float> _Pressure, _Obstacles;
+//StructuredBuffer<float3> _Divergence;
+
+RWTexture3D<float> _Write;
+RWTexture3D<float> _Pressure, _Obstacles;
+RWTexture3D<float4> _Divergence;
 
 [numthreads(GroupSizeXYZ, GroupSizeXYZ, GroupSizeXYZ)]
 void Jacobi(int3 id : SV_DispatchThreadID)
 {
-    int idxL = max(0, id.x - 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
-    int idxR = min(_Size.x - 1, id.x + 1) + id.y * _Size.x + id.z * _Size.x * _Size.y;
+    int3 idxL, idxR, idxB, idxT, idxD, idxU;
+    idxL = idxR = idxB = idxT = idxD = idxU = id;
     
-    int idxB = id.x + max(0, id.y - 1) * _Size.x + id.z * _Size.x * _Size.y;
-    int idxT = id.x + min(_Size.y - 1, id.y + 1) * _Size.x + id.z * _Size.x * _Size.y;
-    
-    int idxD = id.x + id.y * _Size.x + max(0, id.z - 1) * _Size.x * _Size.y;
-    int idxU = id.x + id.y * _Size.x + min(_Size.z - 1, id.z + 1) * _Size.x * _Size.y;
+    idxL.x = max(0, id.x - 1);
+    idxR.x = min(id.x + 1, _Size.x - 1);
+    idxB.y = max(0, id.y - 1);
+    idxT.y = min(id.y + 1, _Size.y - 1);
+    idxD.z = max(0, id.z - 1);
+    idxU.z = min(id.z + 1, _Size.z - 1);
     
     float L = _Pressure[idxL];
     float R = _Pressure[idxR];
@@ -30,11 +35,9 @@ void Jacobi(int3 id : SV_DispatchThreadID)
     float D = _Pressure[idxD];
     float U = _Pressure[idxU];
     
-    int idx = id.x + id.y * _Size.x + id.z * _Size.x * _Size.y;
+    float C = _Pressure[id];
     
-    float C = _Pressure[idx];
-    
-    float divergence = _Divergence[idx].r;
+    float divergence = _Divergence[id].r;
     
     if (_Obstacles[idxL] > 0.1)
         L = C;
@@ -51,7 +54,7 @@ void Jacobi(int3 id : SV_DispatchThreadID)
     if (_Obstacles[idxU] > 0.1)
         U = C;
     
-    _Write[idx] = (L + R + B + T + U + D - divergence) / 6.0;
+    _Write[id] = (L + R + B + T + U + D - divergence) / 6.0;
 }
 
 technique Tech0
