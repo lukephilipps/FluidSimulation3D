@@ -3,7 +3,7 @@
 //==============================================================================
 #define GroupSizeXYZ 8
 
-float4 _Size;
+float3 _Size;
 
 //RWStructuredBuffer<float> _Write;
 RWTexture3D<float> _Write;
