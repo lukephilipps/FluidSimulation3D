@@ -188,14 +188,7 @@ namespace FluidSimulation3D
             float dt = TimeStep;
 
             ApplyAdvection(dt, temperatureDissipation, _temperature);
-
-            if (false)
-            {
-                ApplyAdvection(dt, 1.0f, _density[Read], _phi[Phi_N_1_Hat], 1.0f);
-                ApplyAdvection(dt, 1.0f, _density[Phi_N_1_Hat], _phi[Phi_N_Hat], -1.0f);
-                ApplyAdvectionMacCormack(dt, densityDissipation, _density);
-            }
-            else ApplyAdvection(dt, densityDissipation, _density);
+            ApplyAdvection(dt, densityDissipation, _density);
 
             ApplyAdvectionVelocity(dt);
             ApplyBuoyancy(dt);
@@ -277,29 +270,6 @@ namespace FluidSimulation3D
                 pass.ApplyCompute();
                 GraphicsDevice.DispatchCompute((int)_size.X / ComputeGroupSizeXYZ, (int)_size.Y / ComputeGroupSizeXYZ, (int)_size.Z / ComputeGroupSizeXYZ);
             }
-        }
-
-        void ApplyAdvectionMacCormack(float dt, float dissipation, StructuredBuffer[] buffer)
-        {
-            _applyAdvection.CurrentTechnique = _applyAdvection.Techniques[2];
-            _applyAdvection.Parameters["_Size"].SetValue(_size);
-            _applyAdvection.Parameters["_DeltaTime"].SetValue(dt);
-            _applyAdvection.Parameters["_Dissipate"].SetValue(dissipation);
-            _applyAdvection.Parameters["_Forward"].SetValue(1.0f);
-            _applyAdvection.Parameters["_Read1f"].SetValue(buffer[Read]);
-            _applyAdvection.Parameters["_Write1f"].SetValue(buffer[Write]);
-            _applyAdvection.Parameters["_Phi_n_1_hat"].SetValue(_phi[Phi_N_1_Hat]);
-            _applyAdvection.Parameters["_Phi_n_hat"].SetValue(_phi[Phi_N_Hat]);
-            _applyAdvection.Parameters["_Velocity"].SetValue(_velocity[Read]);
-            _applyAdvection.Parameters["_Obstacles"].SetValue(_obstacles);
-
-            foreach (var pass in _applyAdvection.CurrentTechnique.Passes)
-            {
-                pass.ApplyCompute();
-                GraphicsDevice.DispatchCompute((int)_size.X / ComputeGroupSizeXYZ, (int)_size.Y / ComputeGroupSizeXYZ, (int)_size.Z / ComputeGroupSizeXYZ);
-            }
-
-            Swap(buffer);
         }
 
         void ApplyAdvectionVelocity(float dt)
