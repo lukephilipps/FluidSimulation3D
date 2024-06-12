@@ -2,7 +2,7 @@
 
 A Eulerian 3D fluid simulation of smoke implemented in MonoGame utilizing the [Compute Fork by cpt-max](https://github.com/cpt-max/MonoGame). The smoke dynamics are calculated via a series of compute shaders and the final volume is rendered through a ray marcher. This was created as a final project in my CPI411 Graphics for Games class, feel free to read the [Lab Exercise](https://github.com/lukephilipps/FluidSimulation3D/blob/main/Fluid%20Simulation%20in%203D.pdf) I wrote coinciding with the project.
 
-![Image of the simulation with the smoke absorption color set to a cyan blue.]([http://url/to/img.png](https://github.com/lukephilipps/FluidSimulation3D/blob/main/DemoScreenshot.png))
+![Image of the simulation with the smoke absorption color set to a cyan blue.](./DemoScreenshot.png)
 
 ## Future Additions
 In the future I want to improve the efficiency of this simulation while expanding the range of fluids it can simulate. I have some work on ComputeBuffer->RenderTexture in a fork, however I ran into some issues with MonoGame and surface formats seemingly only being UINTs. 
