@@ -11,5 +11,6 @@ In the future I want to improve the efficiency of this simulation while expandin
 ## References
 * [Scrawk's Unity Fluid Simulation](https://github.com/Scrawk/GPU-GEMS-3D-Fluid-Simulation?tab=readme-ov-file)
 * [Keenan Crane's Box of Smoke](https://www.cs.cmu.edu/~kmcrane/Projects/GPUFluid/)
+* [Shahriar Shahrabi's Gentle Introduction to Realtime Fluid Simulation for Programmers and Technical Artists](https://shahriyarshahrabi.medium.com/gentle-introduction-to-fluid-simulation-for-programmers-and-technical-artists-7c0045c40bac)
 * [GPU Gems 3 Chapter 30 Real-Time Simulation and Rendering of 3D Fluids](https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-30-real-time-simulation-and-rendering-3d-fluids)
 * [GPU Gems 1 Chapter 38 Fast Fluid Dynamics Simulation on the GPU](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu)
