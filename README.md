@@ -5,7 +5,7 @@ A Eulerian 3D fluid simulation of smoke implemented in MonoGame utilizing the [C
 ![Image of the simulation with the smoke absorption color set to a cyan blue.](./DemoScreenshot.png)
 
 ## Future Additions
-In the future I want to improve the efficiency of this simulation while expanding the range of fluids it can simulate. I have some work on ComputeBuffer->RenderTexture in a fork, however I ran into some issues with MonoGame and surface formats seemingly only being UINTs. 
+In the future I want to improve the efficiency of this simulation while expanding the range of fluids it can simulate. I have some work on ComputeBuffer->RenderTexture in a fork, however I ran into some issues with MonoGame and surface formats seemingly only being unsigned. 
 * Conversion of ComputeBuffers to RenderTexture3Ds for faster access patterns.
 * Water simulation using the Level-set Method.
 * Viscous fluid simulation.
